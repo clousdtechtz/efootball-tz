@@ -2,7 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_URL = process.env.NODE_ENV === 'production' ? import.meta.env.VITE_API_URL : 'http://localhost:3001';
+// Directly targeting your live Render backend so login works in production!
+const API_URL = 'https://efootball-tz.onrender.com';
 
 axios.defaults.withCredentials = true;
 
