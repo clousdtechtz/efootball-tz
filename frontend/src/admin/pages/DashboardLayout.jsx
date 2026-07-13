@@ -6,7 +6,8 @@ import Navbar from "../components/Navbar";
 import Sidenav from "../components/Sidenav";
 import { SideNavContext } from "../../contexts/Sidenavontext";
 
-const API_URL = process.env.NODE_ENV === 'production' ? import.meta.env.VITE_API_URL : 'http://localhost:3001';
+// Directly targeting your live Render backend so session verification works!
+const API_URL = 'https://efootball-tz.onrender.com';
 
 axios.defaults.withCredentials = true;
 
