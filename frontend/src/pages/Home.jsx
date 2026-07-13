@@ -1,40 +1,202 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+import { CheckCircle, AlertCircle, Globe } from "lucide-react";
 
-const Home = () => {
+const Register = () => {
+  // Hardcoded directly to your live Render backend so it never fails!
+  const API_URL = 'https://efootball-tz.onrender.com';
+  const navigate = useNavigate();
+
+  // State for form data
+  const [inscription, setInscription] = useState({
+    teamName: "",
+    phoneNum: "",
+    userName: "",
+    countryCode: "+255", // Default directly to Tanzania (+255) to make it easy!
+  });
+
+  // State for API country data
+  const [countries, setCountries] = useState([]);
+  const [statusMsg, setStatusMsg] = useState(null);
+  const [status, setStatus] = useState(null);
+  const [loadingCountries, setLoadingCountries] = useState(true);
+
+  // Fetch country codes from RestCountries API on mount
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get("https://restcountries.com/v3.1/all?fields=name,idd,cca2");
+        const formatted = res.data
+          .filter(c => c.idd.root) 
+          .map(c => ({
+            name: c.name.common,
+            code: `${c.idd.root}${c.idd.suffixes?.[0] || ""}`,
+            flag: c.cca2
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        
+        setCountries(formatted);
+        setLoadingCountries(false);
+      } catch (err) {
+        console.error("Error fetching country codes:", err);
+        setLoadingCountries(false);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  // Detects when the user is typing a Tanzanian number format and changes the flag automatically
+  const handlePhoneChange = (e) => {
+    let value = e.target.value.replace(/\D/g, ""); // Keep only digits
+
+    let detectedCode = inscription.countryCode;
+
+    // 1. If user starts typing "255..."
+    if (value.startsWith("255")) {
+      detectedCode = "+255";
+      value = value.slice(3); // Trim the "255" off so they don't submit double prefix codes
+    } 
+    // 2. If they type a local TZ number starting with 07 or 06 (e.g. "0755...")
+    else if (value.startsWith("07") || value.startsWith("06")) {
+      detectedCode = "+255";
+      value = value.slice(1); // Trim the leading "0" (e.g. "0755..." becomes "755...")
+    }
+
+    setInscription({
+      ...inscription,
+      phoneNum: value,
+      countryCode: detectedCode
+    });
+  };
+
+  const handleRegisterTeam = async (e) => {
+    e.preventDefault();
+    const { teamName, phoneNum, userName, countryCode } = inscription;
+
+    // Validation
+    if (!teamName || !phoneNum || !userName) {
+      setStatusMsg("Please fill all fields!");
+      setStatus(false);
+      return;
+    }
+
+    if (teamName.length < 3) {
+      setStatusMsg("Team name must be at least 3 characters long");
+      setStatus(false);
+      return;
+    }
+
+    // Combine code + number for the backend
+    const fullPhone = `${countryCode}${phoneNum.replace(/\s/g, "")}`;
+
+    try {
+      const response = await axios.post(`${API_URL}/teams/register`, {
+        ...inscription,
+        phoneNum: fullPhone // Send the full concatenated number
+      });
+      
+      setStatusMsg(response.data.message);
+      setStatus(true);
+      setTimeout(() => navigate("/stats"), 1500);
+    } catch (err) {
+      setStatusMsg(err.response?.data?.error || "Failed to register team");
+      setStatus(false);
+    }
+  };
+
+  const inputStyle =
+    "w-full px-4 py-3 bg-white/10 text-white placeholder-white/60 rounded-md border border-gray-600 focus:ring-2 focus:ring-third focus:outline-none transition duration-200";
+
   return (
     <>
       <Header fixed />
       <div
         className="bg-cover bg-center bg-no-repeat min-h-screen"
-        style={{ backgroundImage: "url('../../assets/images/main_page_1.png')" }}
+        style={{ backgroundImage: "url('../../assets/images/main_page_1.png')" }} 
       >
-        <div className="bg-primary/60 min-h-screen flex items-center justify-center flex-col">
-          <div className="text-center px-6 md:px-10">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-third drop-shadow">
-              Welcome everyone
-            </h1>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mt-2 drop-shadow-lg">
-              <span className="text-fourth">ourouimed</span> Ramadan Tournament 2026
-            </h2>
-            <p className="text-gray-300 mt-4 max-w-xl mx-auto text-sm sm:text-lg">
-            Register now and join The second edition of the tournament. Play matches, check your stats, and have fun with other players!
-            </p>
+        <div className="bg-primary/60 p-4 min-h-screen flex items-center justify-center w-full">
+          <div className="w-full max-w-xl bg-primary/90 rounded-2xl p-4 md:p-8 shadow-xl backdrop-blur-md">
+            <form onSubmit={handleRegisterTeam} className="space-y-4 md:space-y-6">
+              <div className="text-center">
+                <h3 className="text-2xl md:text-3xl font-bold text-fourth uppercase tracking-wider">Register Now</h3>
+                <p className="text-sm md:text-base text-white mt-2">
+                  Ready for <span className="text-third font-semibold">Second edition</span>? Join the{" "}
+                  <span className="text-fourth font-semibold">eFootball</span> tournament!
+                </p>
+              </div>
 
-            <div className="flex items-center gap-4 justify-center mt-8 flex-wrap">
-              <Link
-                to="/stats"
-                className="home-btn bg-fourth text-primary hover:bg-fourth/90 transition duration-200"
+              <div className="space-y-4">
+                {/* Team Name */}
+                <input
+                  type="text"
+                  placeholder="Team Name"
+                  className={inputStyle}
+                  value={inscription.teamName}
+                  onChange={(e) => setInscription({ ...inscription, teamName: e.target.value.trimStart() })}
+                />
+
+                {/* PES Username */}
+                <input
+                  type="text"
+                  placeholder="Username in PES"
+                  className={inputStyle}
+                  value={inscription.userName}
+                  onChange={(e) => setInscription({ ...inscription, userName: e.target.value.trimStart() })}
+                />
+
+                {/* Phone Number Group */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-white/60 ml-1">Phone Number</label>
+                  <div className="flex gap-2">
+                    <select
+                      className="w-[100px] px-2 py-3 bg-white/10 text-white rounded-md border border-gray-600 focus:ring-2 focus:ring-third outline-none cursor-pointer"
+                      value={inscription.countryCode}
+                      onChange={(e) => setInscription({ ...inscription, countryCode: e.target.value })}
+                    >
+                      {loadingCountries ? (
+                        <option>...</option>
+                      ) : (
+                        countries.map((c, i) => (
+                          <option key={i} value={c.code} className="bg-primary text-white">
+                            {c.code} ({c.flag})
+                          </option>
+                        ))
+                      )}
+                    </select>
+                    
+                    <input
+                      type="tel"
+                      placeholder="e.g. 712345678 or 255712345678"
+                      className={`${inputStyle} flex-1`}
+                      value={inscription.phoneNum}
+                      onChange={handlePhoneChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="cursor-pointer w-full py-4 bg-third text-white font-bold rounded-lg hover:bg-third/80 hover:scale-[1.01] active:scale-95 transition-all duration-200 shadow-lg"
               >
-                View Statistics
-              </Link>
-              <Link
-                to="/register"
-                className="home-btn bg-third text-white hover:bg-third/90 transition duration-200"
-              >
-                Join the Tournament
-              </Link>
-            </div>
+                Register Now
+              </button>
+
+              {statusMsg && (
+                <div
+                  className={`flex items-center gap-2 text-sm sm:text-base font-medium px-4 py-3 rounded-md border animate-in fade-in zoom-in duration-300
+                    ${status 
+                      ? "bg-green-500/20 text-green-400 border-green-500/50" 
+                      : "bg-red-500/20 text-red-400 border-red-500/50"
+                    }`}
+                >
+                  {status ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+                  <span>{statusMsg}</span>
+                </div>
+              )}
+            </form>
           </div>
         </div>
       </div>
@@ -42,4 +204,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Register;
