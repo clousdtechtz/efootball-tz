@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/', // Set this to your base path if you're deploying to a subdirectory
+  base: '/efootball-tz/', // <--- We updated this line!
   build: {
     outDir: 'dist', // Make sure the output folder is correct
   },
