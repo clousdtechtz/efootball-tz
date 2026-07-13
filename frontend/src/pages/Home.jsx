@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { CheckCircle, AlertCircle, Globe } from "lucide-react";
 
-const Register = () => {
+const Home = () => {
   // Hardcoded directly to your live Render backend so it never fails!
   const API_URL = 'https://efootball-tz.onrender.com';
   const navigate = useNavigate();
@@ -47,26 +47,24 @@ const Register = () => {
     fetchCountries();
   }, []);
 
-  // Detects when the user is typing a Tanzanian number format and changes the flag automatically
+  // Detects when the user is typing a Tanzanian number format and changes the flag selection
   const handlePhoneChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ""); // Keep only digits
+    const value = e.target.value.replace(/\D/g, ""); // Keep only digits
 
     let detectedCode = inscription.countryCode;
 
     // 1. If user starts typing "255..."
     if (value.startsWith("255")) {
       detectedCode = "+255";
-      value = value.slice(3); // Trim the "255" off so they don't submit double prefix codes
     } 
     // 2. If they type a local TZ number starting with 07 or 06 (e.g. "0755...")
     else if (value.startsWith("07") || value.startsWith("06")) {
       detectedCode = "+255";
-      value = value.slice(1); // Trim the leading "0" (e.g. "0755..." becomes "755...")
     }
 
     setInscription({
       ...inscription,
-      phoneNum: value,
+      phoneNum: value, // Leaves the input digits untouched!
       countryCode: detectedCode
     });
   };
@@ -137,10 +135,10 @@ const Register = () => {
                   onChange={(e) => setInscription({ ...inscription, teamName: e.target.value.trimStart() })}
                 />
 
-                {/* PES Username */}
+                {/* EFOOTBALL Username */}
                 <input
                   type="text"
-                  placeholder="Username in PES"
+                  placeholder="Username in eFootball"
                   className={inputStyle}
                   value={inscription.userName}
                   onChange={(e) => setInscription({ ...inscription, userName: e.target.value.trimStart() })}
@@ -168,7 +166,7 @@ const Register = () => {
                     
                     <input
                       type="tel"
-                      placeholder="e.g. 712345678 or 255712345678"
+                      placeholder="e.g. 255623553450"
                       className={`${inputStyle} flex-1`}
                       value={inscription.phoneNum}
                       onChange={handlePhoneChange}
@@ -204,4 +202,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Home;
