@@ -10,7 +10,7 @@ import Countdown from '../components/Countdown';
 import { SettingsContext } from '../contexts/SettingsContext';
 
 const Stats = () => {
-  const {settings} = useContext(SettingsContext)
+  const { settings } = useContext(SettingsContext);
   const [teams, setTeams] = useState([]);
   const [matches, setMatches] = useState([]);
   const [teamsError, setTeamsError] = useState(null);
@@ -18,7 +18,9 @@ const Stats = () => {
   const [teamsLoading, setTeamsLoading] = useState(true);
   const [matchesLoading, setMatchesLoading] = useState(true);
 
-  const API_URL = process.env.NODE_ENV === 'production' ? import.meta.env.VITE_API_URL : 'http://localhost:3001';
+  // Directly targeting your live Render backend so the stats load seamlessly!
+  const API_URL = 'https://efootball-tz.onrender.com';
+
   const fetchTeams = async () => {
     try {
       const res = await axios.get(`${API_URL}/teams/standings`);
@@ -40,13 +42,11 @@ const Stats = () => {
       setMatchesLoading(false);
     }
   };
-  useEffect(() => {
-    
 
+  useEffect(() => {
     fetchTeams();
     fetchMatches();
   }, [API_URL]);
-
 
   const formatDatetimeLocal = (dateTime) => {
     if (!dateTime) return '';
@@ -86,7 +86,7 @@ const Stats = () => {
               </div>
               <div>
                 <HomeCard title="countdown">
-                  <Countdown targetDate={formatDatetimeLocal(settings.deadlineDate)} round="League Phase" />
+                  <Countdown targetDate={formatDatetimeLocal(settings?.deadlineDate)} round="League Phase" />
                 </HomeCard>
 
                 <HomeCard title="top scorer">
