@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
-import { SportsSoccer, Group } from "@mui/icons-material";
+// Swapped Material UI icons for Lucide React!
+import { Dribbble, Users, CalendarDays } from "lucide-react";
 import axios from "axios";
 
 import StatsCard from "../components/StatsCard";
@@ -9,7 +10,8 @@ import Standing from "../components/Standing";
 import Matches from "../components/Matches";
 import { SideNavContext } from "../../contexts/Sidenavontext";
 
-const API_URL = process.env.NODE_ENV === 'production' ? import.meta.env.VITE_API_URL : 'http://localhost:3001';
+// Directly targeting your live Render backend
+const API_URL = 'https://efootball-tz.onrender.com';
 
 const Dashboard = () => {
   const [standing, setStandings] = useState([]);
@@ -91,21 +93,21 @@ const Dashboard = () => {
           label="Total Goals"
           value={goals}
           icon={
-            <SportsSoccer fontSize="large" className="text-primary" />
+            <Dribbble size={32} className="text-primary" />
           }
         />
         <StatsCard
           label="Total Teams"
           value={totalTeams}
           icon={
-            <Group fontSize="large" className="text-primary" />
+            <Users size={32} className="text-primary" />
           }
         />
         <StatsCard
           label="Matches Played"
           value={matchesPlayed}
           icon={
-            <SportsSoccer fontSize="large" className="text-primary" />
+            <CalendarDays size={32} className="text-primary" />
           }
         />
       </div>
