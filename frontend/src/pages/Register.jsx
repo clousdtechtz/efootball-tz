@@ -5,7 +5,8 @@ import Header from "../components/Header";
 import { CheckCircle, AlertCircle, Globe } from "lucide-react";
 
 const Register = () => {
-  const API_URL = process.env.NODE_ENV === 'production' ? import.meta.env.VITE_API_URL : 'http://localhost:3001';
+  // Pointing directly to your live Render backend so registration works!
+  const API_URL = 'https://efootball-tz.onrender.com';
   const navigate = useNavigate();
 
   // State for form data
@@ -13,7 +14,7 @@ const Register = () => {
     teamName: "",
     phoneNum: "",
     userName: "",
-    countryCode: "+212", // Default (e.g., Morocco)
+    countryCode: "+255", // Default to Tanzania (+255)
   });
 
   // State for API country data
@@ -45,6 +46,25 @@ const Register = () => {
     };
     fetchCountries();
   }, []);
+
+  // Switches dropdown to +255 if they type '255', '07', or '06'
+  // It leaves the typed phone number input completely untouched!
+  const handlePhoneChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ""); // Only allow digits
+
+    let detectedCode = inscription.countryCode;
+
+    // Detect Tanzania numbers
+    if (value.startsWith("255") || value.startsWith("07") || value.startsWith("06")) {
+      detectedCode = "+255";
+    }
+
+    setInscription({
+      ...inscription,
+      phoneNum: value, // Keeps all typed digits perfectly intact
+      countryCode: detectedCode
+    });
+  };
 
   const handleRegisterTeam = async (e) => {
     e.preventDefault();
@@ -143,12 +163,10 @@ const Register = () => {
                     
                     <input
                       type="tel"
-                      placeholder="612345678"
+                      placeholder="e.g. 255623553450"
                       className={`${inputStyle} flex-1`}
                       value={inscription.phoneNum}
-                      onChange={(e) =>
-                        setInscription({ ...inscription, phoneNum: e.target.value.replace(/\D/g, "") })
-                      }
+                      onChange={handlePhoneChange}
                     />
                   </div>
                 </div>
