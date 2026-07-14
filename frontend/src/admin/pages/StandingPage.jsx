@@ -3,7 +3,7 @@ import axios from "axios";
 import { Search, ErrorOutline } from "@mui/icons-material";
 import PopUpWindow from "../components/PopUpWindow";
 
-const API_URL = process.env.NODE_ENV === 'production' ? import.meta.env.VITE_API_URL : 'http://localhost:3001';
+const API_URL = 'https://efootball-tz.onrender.com';
 
 const StandingsPage = () => {
   const [standings, setStandings] = useState([]);
