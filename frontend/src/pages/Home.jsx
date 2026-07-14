@@ -21,11 +21,11 @@ const Home = () => {
             
             {/* Title / Welcoming Text */}
             <h2 className="text-pink-500 font-bold text-lg md:text-xl uppercase tracking-wider">
-              Welcome everyone
+              welcome anyone
             </h2>
             
             <h1 className="text-white font-extrabold text-4xl md:text-5xl leading-tight uppercase tracking-wide">
-              ourouimed
+              mbokatech
               <br />
               <span className="text-yellow-400">Midnight</span>
               <br />
@@ -34,7 +34,7 @@ const Home = () => {
 
             {/* Swahili Subtitle */}
             <p className="text-white/90 text-sm md:text-base max-w-md mx-auto leading-relaxed font-medium">
-              Jisajiri sasa na jiunge na second edition of the tournament. Play matches, check your stats, and have fun with other players!
+              Jisajiri sasa na jiunge na second edition ya tournament. Cheza eFootball na marafiki, angalia stats have fun with other players!
             </p>
 
             {/* Compact, Centered Pill Buttons */}
