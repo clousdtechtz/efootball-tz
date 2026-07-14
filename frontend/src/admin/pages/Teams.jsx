@@ -4,8 +4,7 @@ import { Add, Edit, Delete, List, Search } from "@mui/icons-material";
 import PopUpWindow from "../components/PopUpWindow";
 import { exportAsCsv } from '../../utils/exportAsCsv';
 
-const API_URL = process.env.NODE_ENV === 'production' ? import.meta.env.VITE_API_URL : 'http://localhost:3001';
-
+const API_URL = 'https://efootball-tz.onrender.com';
 const Teams = () => {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
