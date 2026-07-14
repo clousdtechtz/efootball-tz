@@ -5,7 +5,7 @@ import { SettingsContext } from '../../contexts/SettingsContext';
 import axios from 'axios';
 
 const Settings = () => {
-  const API_URL = process.env.NODE_ENV === 'production' ? import.meta.env.VITE_API_URL : 'http://localhost:3001';
+const API_URL = 'https://efootball-tz.onrender.com';
   const navigate = useNavigate();
   const { settings } = useContext(SettingsContext);
 
