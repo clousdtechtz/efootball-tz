@@ -31,8 +31,8 @@ const MenuHome = ()=>{
                 <li><Link to='/dashboard'className={`${MenuLinkStyle} text-primary`}><Person/>Admin</Link></li>
             </ul>
             <div className='py-2 px-4 flex items-center gap-1 justify-center'>
-                <a className='flex items-center justify-center rounded w-[40px] h-[40px] bg-[#181717]' href='https://github.com/Ourouimed' target='_blank'><GitHub/></a>
-                <a className='flex items-center justify-center rounded w-[40px] h-[40px] bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600' href='https://instagram.com/Ourouimed' target='_blank'><Instagram/></a>
+                <a className='flex items-center justify-center rounded w-[40px] h-[40px] bg-[#181717]' href='https://github.com/clousdtechtz' target='_blank'><GitHub/></a>
+                <a className='flex items-center justify-center rounded w-[40px] h-[40px] bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600' href='https://instagram.com/Sultanseifu4' target='_blank'><Instagram/></a>
                 <a className='flex items-center justify-center rounded w-[40px] h-[40px] bg-[#25D366]' href='' target='_blank'><WhatsApp/></a>
             </div>
         </div>
