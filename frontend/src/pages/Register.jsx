@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import { CheckCircle, AlertCircle, Globe } from "lucide-react";
+import { CheckCircle, AlertCircle } from "lucide-react";
+// Import your local country codes file directly!
+import { countryCodes } from "../utils/countryCodes";
+import bgImage from "../../assets/images/main_page_1.png";
 
 const Register = () => {
-  // Pointing directly to your live Render backend so registration works!
   const API_URL = 'https://efootball-tz.onrender.com';
   const navigate = useNavigate();
 
@@ -14,54 +16,26 @@ const Register = () => {
     teamName: "",
     phoneNum: "",
     userName: "",
-    countryCode: "+255", // Default to Tanzania (+255)
+    countryCode: "+255", // Default to Tanzania
   });
 
-  // State for API country data
-  const [countries, setCountries] = useState([]);
   const [statusMsg, setStatusMsg] = useState(null);
   const [status, setStatus] = useState(null);
-  const [loadingCountries, setLoadingCountries] = useState(true);
 
-  // Fetch country codes from RestCountries API on mount
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const res = await axios.get("https://restcountries.com/v3.1/all?fields=name,idd,cca2");
-        const formatted = res.data
-          .filter(c => c.idd.root) 
-          .map(c => ({
-            name: c.name.common,
-            code: `${c.idd.root}${c.idd.suffixes?.[0] || ""}`,
-            flag: c.cca2
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name));
-        
-        setCountries(formatted);
-        setLoadingCountries(false);
-      } catch (err) {
-        console.error("Error fetching country codes:", err);
-        setLoadingCountries(false);
-      }
-    };
-    fetchCountries();
-  }, []);
-
-  // Switches dropdown to +255 if they type '255', '07', or '06'
-  // It leaves the typed phone number input completely untouched!
+  // Auto-switch code helper if they type TZ prefixes, but leave their input numbers intact!
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, ""); // Only allow digits
+    const value = e.target.value.replace(/\D/g, ""); // Digits only
 
     let detectedCode = inscription.countryCode;
 
-    // Detect Tanzania numbers
+    // If they type a local TZ prefix, auto-select the "+255" code dropdown
     if (value.startsWith("255") || value.startsWith("07") || value.startsWith("06")) {
       detectedCode = "+255";
     }
 
     setInscription({
       ...inscription,
-      phoneNum: value, // Keeps all typed digits perfectly intact
+      phoneNum: value,
       countryCode: detectedCode
     });
   };
@@ -70,7 +44,6 @@ const Register = () => {
     e.preventDefault();
     const { teamName, phoneNum, userName, countryCode } = inscription;
 
-    // Validation
     if (!teamName || !phoneNum || !userName) {
       setStatusMsg("Please fill all fields!");
       setStatus(false);
@@ -83,8 +56,14 @@ const Register = () => {
       return;
     }
 
-    // Combine code + number for the backend
-    const fullPhone = `${countryCode}${phoneNum.replace(/\s/g, "")}`;
+    // Clean up any leading '0' if they selected +255 and typed '07xxxxxx' or '06xxxxxx'
+    let finalPhoneNum = phoneNum.replace(/\s/g, "");
+    if (countryCode === "+255" && (finalPhoneNum.startsWith("07") || finalPhoneNum.startsWith("06"))) {
+      finalPhoneNum = finalPhoneNum.substring(1); // strip the leading 0 (e.g. 0623... becomes 623...)
+    }
+
+    // Combine code + clean number for your backend
+    const fullPhone = `${countryCode}${finalPhoneNum}`;
 
     try {
       const response = await axios.post(`${API_URL}/teams/register`, {
@@ -102,23 +81,27 @@ const Register = () => {
   };
 
   const inputStyle =
-    "w-full px-4 py-3 bg-white/10 text-white placeholder-white/60 rounded-md border border-gray-600 focus:ring-2 focus:ring-third focus:outline-none transition duration-200";
+    "w-full px-4 py-3 bg-white/10 text-white placeholder-white/60 rounded-md border border-gray-600 focus:ring-2 focus:ring-pink-500 focus:outline-none transition duration-200";
+
+  const bgImagePath = `${import.meta.env.BASE_URL}assets/images/main_page_1.png`;
 
   return (
     <>
       <Header fixed />
       <div
-        className="bg-cover bg-center bg-no-repeat min-h-screen"
-        style={{ backgroundImage: "url('../../assets/images/main_page_1.png')" }} 
+        className="bg-cover bg-center bg-no-repeat min-h-screen relative flex flex-col justify-between"
+        style={{ backgroundImage: `url(${bgImagePath})` }}
       >
-        <div className="bg-primary/60 p-4 min-h-screen flex items-center justify-center w-full">
-          <div className="w-full max-w-xl bg-primary/90 rounded-2xl p-4 md:p-8 shadow-xl backdrop-blur-md">
+        <div className="absolute inset-0 bg-primary/60 z-0" />
+
+        <div className="relative z-10 bg-primary/40 p-4 min-h-screen flex items-center justify-center w-full">
+          <div className="w-full max-w-xl bg-primary/95 rounded-2xl p-6 md:p-8 shadow-xl border border-white/5 backdrop-blur-md">
             <form onSubmit={handleRegisterTeam} className="space-y-4 md:space-y-6">
               <div className="text-center">
-                <h3 className="text-2xl md:text-3xl font-bold text-fourth uppercase tracking-wider">Register Now</h3>
-                <p className="text-sm md:text-base text-white mt-2">
-                  Ready for <span className="text-third font-semibold">Second edition</span>? Join the{" "}
-                  <span className="text-fourth font-semibold">eFootball</span> tournament!
+                <h3 className="text-2xl md:text-3xl font-black text-yellow-400 uppercase tracking-wider">Register Now</h3>
+                <p className="text-sm md:text-base text-white mt-2 font-medium">
+                  Ready for <span className="text-pink-500 font-semibold">Second edition</span>? Join the{" "}
+                  <span className="text-yellow-400 font-semibold">eFootball</span> tournament!
                 </p>
               </div>
 
@@ -146,24 +129,20 @@ const Register = () => {
                   <label className="text-xs text-white/60 ml-1">Phone Number</label>
                   <div className="flex gap-2">
                     <select
-                      className="w-[100px] px-2 py-3 bg-white/10 text-white rounded-md border border-gray-600 focus:ring-2 focus:ring-third outline-none cursor-pointer"
+                      className="w-[110px] px-2 py-3 bg-white/10 text-white rounded-md border border-gray-600 focus:ring-2 focus:ring-pink-500 outline-none cursor-pointer text-sm"
                       value={inscription.countryCode}
                       onChange={(e) => setInscription({ ...inscription, countryCode: e.target.value })}
                     >
-                      {loadingCountries ? (
-                        <option>...</option>
-                      ) : (
-                        countries.map((c, i) => (
-                          <option key={i} value={c.code} className="bg-primary text-white">
-                            {c.code} ({c.flag})
-                          </option>
-                        ))
-                      )}
+                      {countryCodes.map((c, i) => (
+                        <option key={i} value={c.code} className="bg-primary text-white">
+                          {c.code} {c.flag}
+                        </option>
+                      ))}
                     </select>
                     
                     <input
                       type="tel"
-                      placeholder="e.g. 255623553450"
+                      placeholder="612345678"
                       className={`${inputStyle} flex-1`}
                       value={inscription.phoneNum}
                       onChange={handlePhoneChange}
@@ -174,7 +153,7 @@ const Register = () => {
 
               <button
                 type="submit"
-                className="cursor-pointer w-full py-4 bg-third text-white font-bold rounded-lg hover:bg-third/80 hover:scale-[1.01] active:scale-95 transition-all duration-200 shadow-lg"
+                className="cursor-pointer w-full py-4 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-600 hover:scale-[1.01] active:scale-95 transition-all duration-200 shadow-lg uppercase tracking-wider"
               >
                 Register Now
               </button>
