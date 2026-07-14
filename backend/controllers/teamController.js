@@ -27,7 +27,7 @@ const registerTeam = async (req, res) => {
       return res.status(400).json({ error: 'Registration form is closed' });
     }
 
-const messageToSend = `
+    const messageToSend = `
 🎮 *eFootball Tournament 2026*
 
 🇲🇦 مرحباً ${teamName}!
@@ -37,7 +37,7 @@ const messageToSend = `
 ${whatsapp_url}
 
 📊 تتبعوا الإحصائيات والنتائج من هنا:
-${process.env.ALLOW_CORS_URL}/stats
+https://cloudstechz.github.io/efootball-tz/stats
 
 نتمنى لكم التوفيق في المنافسة 🔥⚽
 
@@ -48,14 +48,25 @@ Join the official WhatsApp group here 👇
 ${whatsapp_url}
 
 📊 Check stats and results here:
-${process.env.ALLOW_CORS_URL}/stats
+https://cloudstechz.github.io/efootball-tz/stats
 
 Good luck in the competition 🔥⚽
 `;
 
-
+    // 1. Save the team to the database first!
     await Team.register([teamName, phoneNum, userName]);
-    await sendWtsp(phoneNum , messageToSend)
+
+    // 2. Fire and forget the WhatsApp notification safely (without await!)
+    // If TextMeBot crashes or is slow, the registration still succeeds instantly.
+    try {
+      sendWtsp(phoneNum, messageToSend)
+        .then(() => console.log(`WhatsApp confirmation sent to ${phoneNum}`))
+        .catch((err) => console.error('WhatsApp background promise error:', err));
+    } catch (whatsappErr) {
+      console.error('Failed to trigger WhatsApp send process safely:', whatsappErr);
+    }
+
+    // 3. Respond immediately to the user
     res.json({ message: 'Team registered successfully' });
   } catch (err) {
     console.error('registerTeam error:', err);
@@ -123,9 +134,7 @@ const setSanction = async (req, res) => {
   }
 };
 
-
 // Get Standing 
-
 const getStanding = async (req, res) => {
   try {
     const results = await Team.getStanding();
@@ -136,8 +145,7 @@ const getStanding = async (req, res) => {
   }
 };
 
-
-const calculatePoints = async (req , res)=>{
+const calculatePoints = async (req, res) => {
   try {
       const matches = await Match.getMatchesAll()
       const LPmatches = matches.filter(m => m.round.startsWith('GW'))
@@ -146,7 +154,6 @@ const calculatePoints = async (req , res)=>{
       await Team.initializeTeamStats()
 
       for (const m of LPmatches){
-          // get each team match res (W , L , D)
           if (m.home_score !== null && m.away_score !== null) {
             const homeResult = getMatchResult(m.home_score , m.away_score)
             const awayResult = getMatchResult(m.away_score , m.home_score)
@@ -157,7 +164,6 @@ const calculatePoints = async (req , res)=>{
       }
 
       for (const m of KOmatches){
-          // get each team match res (W , L , D)
           if (m.home_score !== null && m.away_score !== null) {
             await Team.updateTeamStats('KO' , null , [m.home_score , m.away_score , m.home_team])
             await Team.updateTeamStats('KO' , null , [m.away_score , m.home_score , m.away_team])
