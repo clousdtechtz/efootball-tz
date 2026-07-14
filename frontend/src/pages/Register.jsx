@@ -3,9 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { CheckCircle, AlertCircle } from "lucide-react";
-// Import your local country codes file directly!
-import { countryCodes } from "../utils/countryCodes";
-import bgImage from "../../assets/images/main_page_1.png";
+// Fixed: Relative path adjusted to step up correctly to the utils folder
+import { countryCodes } from "../utils/countryCodes.js";
 
 const Register = () => {
   const API_URL = 'https://efootball-tz.onrender.com';
@@ -95,7 +94,7 @@ const Register = () => {
         <div className="absolute inset-0 bg-primary/60 z-0" />
 
         <div className="relative z-10 bg-primary/40 p-4 min-h-screen flex items-center justify-center w-full">
-          <div className="w-full max-w-xl bg-primary/95 rounded-2xl p-6 md:p-8 shadow-xl border border-white/5 backdrop-blur-md">
+          <div className="w-full max-w-xl bg-primary/90 rounded-2xl p-6 md:p-8 shadow-xl border border-white/5 backdrop-blur-md">
             <form onSubmit={handleRegisterTeam} className="space-y-4 md:space-y-6">
               <div className="text-center">
                 <h3 className="text-2xl md:text-3xl font-black text-yellow-400 uppercase tracking-wider">Register Now</h3>
@@ -133,7 +132,7 @@ const Register = () => {
                       value={inscription.countryCode}
                       onChange={(e) => setInscription({ ...inscription, countryCode: e.target.value })}
                     >
-                      {countryCodes.map((c, i) => (
+                      {countryCodes && countryCodes.map((c, i) => (
                         <option key={i} value={c.code} className="bg-primary text-white">
                           {c.code} {c.flag}
                         </option>
