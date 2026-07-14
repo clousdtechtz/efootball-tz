@@ -25,7 +25,7 @@ const Matches = () => {
   const navigate = useNavigate();
   const { settings } = useContext(SettingsContext);
 
-  const API_URL = process.env.NODE_ENV === 'production' ? import.meta.env.VITE_API_URL : 'http://localhost:3001';
+  const API_URL = 'https://efootball-tz.onrender.com';
 
   // build rounds
   let gwRounds = [];
